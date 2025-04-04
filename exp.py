@@ -58,35 +58,33 @@ def get_pretrained_answer(user_query):
 
 def get_gemini_advice(expenses, income, user_input=""):
     prompt = f"""
-You're advising Indian college students living in a hostel. They've already prepaid their mess fees — so basic meals are technically covered (even if the curry occasionally doubles as paint thinner).
+You're advising a group of Indian college students living in a hostel.
 
-The "food" category in their expenses? That’s for ditching the mess — ordering Swiggy, cooking Maggi, or team-cooked hostel feasts with self-bought ingredients.
+They’ve already prepaid their mess fees — so technically, food is covered (if we can call yellow water and mystery sabzi "food"). So the "food" budget here? That’s what they spend to *escape the mess* — Swiggy splurges, Maggi nights, or squad-cooked hostel dinners using their own stash of ingredients.
 
-Now here’s their current monthly budget (Total: ₹{income}):
+Now here’s their monthly income and how they’ve divided it: ₹{income} total.
 
-🏠 Rent: ₹{expenses.get("rent", 0)} — Shared rooms with roommates who snore like generators, but it works.  
-🍲 Food (mess escape): ₹{expenses.get("food", 0)} — Maggi, chai, midnight munchies, and Swiggy regrets.  
-🚌 Transport: ₹{expenses.get("transport", 0)} — From walking 2 km to save ₹15, to taking autos when it rains (or you’re just lazy).  
-🎉 Entertainment: ₹{expenses.get("entertainment", 0)} — Movie nights, random pani puri outings, Spotify Premium (don’t lie), or just recharging after exams.  
-💰 Savings: ₹{expenses.get("savings", 0)} — Emergency fund or the “bro I’m broke” backup plan.
+🏠 Rent: ₹{expenses.get("rent", 0)}  
+🍲 Food (a.k.a. 'Save Me From the Mess' fund): ₹{expenses.get("food", 0)}  
+🚌 Transport: ₹{expenses.get("transport", 0)}  
+🎉 Entertainment: ₹{expenses.get("entertainment", 0)}  
+💰 Savings: ₹{expenses.get("savings", 0)}
+
+Your job:
+- Roast or respect their budgeting decisions — up to you.
+- Tell them if any category is totally out of whack (why is food more than rent??).
+- Suggest smart (not boring) fixes.
+- Relate like a senior who’s *been there, broke that* — not a lecturebot.
+- Talk like a human. Use sarcasm, realism, hostel vibes — chai stalls, free college events, pondside gossip, broken fan blades… the works.
+- Avoid "phase 1, phase 2" MBA talk. No motivational quotes either. Just real, witty, usable advice.
+
+If there's any extra user input, like a specific goal or complaint, consider that too:
 
 {user_input}
 
-Your job is to:
-- Look at this expense spread and give them brutally honest but fun advice.
-- Tell them where they might be overspending or under-planning.
-- Suggest realistic tweaks — small changes that feel doable.
-- Keep the tone witty, sarcastic, and rooted in hostel life (think: chai breaks, shared buckets, missed buses, last-minute birthday parties).
-- No corporate lectures. No financial gyaan. Just senior-to-junior real talk.
-
-Also: talk like a human. No “phase 1” or “based on analysis” vibes. If they’re overspending on Maggi, say it like it is.
-"""
-    try:
-        response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
-        return response.text
-    except Exception as e:
-        return f"⚠️ Error getting AI advice: {e}"
-
+Now go full hostel-senior mode.
+    """
+    return prompt
 
 def rephrase_pretrained_answer(question, base_answer):
     prompt = f"""
