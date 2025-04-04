@@ -1,4 +1,3 @@
-
 import os
 import streamlit as st
 import google.generativeai as genai
@@ -15,28 +14,28 @@ if api_key:
 else:
     st.error("⚠️ API key is missing! Please check your .env file.")
 
-# Pre-trained FAQ answers
+# Updated FAQ database for hostel students with mess + kitchen
 pre_trained_qa = {
-    "how to save on groceries": "Create a monthly grocery list, buy in bulk for staples, and track weekly spending to avoid overspending.",
-    "how much should i save monthly": "Aim to save at least 20% of your monthly income. Adjust this based on fixed expenses and priorities.",
-    "how to reduce electricity bill": "Use energy-efficient appliances, turn off devices when not in use, and monitor monthly power usage.",
-    "best way to track expenses": "Use apps like Walnut or Excel sheets to log daily spending and review your monthly outflow.",
-    "how to reduce transportation cost": "Plan commute routes in advance, use monthly public transport passes, or consider ride-sharing to cut costs.",
-    "how to build an emergency fund": "Set aside a fixed monthly amount, like ₹500–₹2000, until you accumulate 3–6 months' worth of expenses.",
-    "should i invest or save": "First cover monthly savings goals (e.g., rent, bills, emergency fund), then invest leftover funds wisely.",
-    "how to save money as a student": "Track monthly expenses on food and transport, use campus amenities, and avoid frequent takeouts.",
-    "tips for saving money in india": "Limit impulsive UPI payments, avoid mid-month overspending, and review your monthly expenses every weekend.",
-    "how to avoid impulse buying": "Stick to a monthly budget for non-essentials and avoid online browsing without intent.",
-    "how to plan a monthly budget": "Split income into needs (50%), wants (30%), and savings (20%). Adjust based on actual monthly expenses.",
-    "how to save for travel": "Include a travel fund in your monthly budget—cut back slightly on luxuries like entertainment or food delivery.",
-    "what is a good savings goal": "Saving 20–30% of monthly income is a healthy goal. Set clear targets like ₹10,000 in 6 months.",
-    "how to cut dining expenses": "Limit dine-outs to once or twice a month. Track how much you spend on food apps monthly.",
-    "how to save on phone bills": "Switch to a plan that fits your monthly usage. Track data usage to avoid overages.",
-    "how to manage credit card bills": "Pay off the full due amount every month. Set a fixed credit limit for yourself to avoid overuse.",
-    "how to split rent with roommates": "Use apps like Splitwise and ensure each person's share is included in monthly planning.",
-    "how to avoid overspending": "Categorize monthly expenses, avoid frequent UPI app usage, and stick to weekly spending caps.",
-    "how to reduce monthly subscriptions": "Audit all your subscriptions once a month. Cancel unused ones or switch to family plans.",
-    "how to manage money on low income": "Track every rupee, prioritize essentials, and create a strict monthly budget with a fixed saving goal—even ₹100 helps."
+    "how to save on groceries": "Since your mess fees are prepaid, only buy groceries if you're planning to use the common kitchen. Buy staples in bulk and split costs with roommates to save more.",
+    "how much should i save monthly": "As a college student, saving even ₹300–₹1000/month is a great start. Focus on building habits, not large numbers.",
+    "how to reduce electricity bill": "Use shared kitchen appliances efficiently. Switch off lights/fans when leaving. Avoid overusing personal electronics.",
+    "best way to track expenses": "Use basic apps like Walnut or Google Sheets. Track your daily UPI spends and weekly food/kitchen recharges.",
+    "how to reduce transportation cost": "Walk or cycle within campus. For trips outside, use metro passes or split cab fares with friends.",
+    "how to build an emergency fund": "Try saving ₹100–₹500/month aside. Use a separate UPI wallet for this so you don't touch it easily.",
+    "should i invest or save": "Start by saving small, then learn basic investing through apps like Groww or Zerodha Varsity once you’ve built a small reserve.",
+    "how to save money as a student": "Utilize mess food as much as possible. Use your kitchen smartly only when needed. Avoid unnecessary online spending.",
+    "tips for saving money in india": "Minimize Swiggy/Zomato, avoid impulse UPI spends, and split OTT or WiFi bills with friends.",
+    "how to avoid impulse buying": "Uninstall shopping apps, and follow a ₹500/month cap on non-essential spends.",
+    "how to plan a monthly budget": "Split income into food/kitchen, transport, essentials (like SIM), and a small buffer for savings/emergencies.",
+    "how to save for travel": "Cut back slightly on weekly junk food or movie outings, and move that amount to a travel wallet.",
+    "what is a good savings goal": "Even ₹5000 saved over 6 months is a win. Don’t aim big—aim consistent.",
+    "how to cut dining expenses": "Limit eating out. Use mess, or coordinate group cooking in the kitchen to share grocery costs.",
+    "how to save on phone bills": "Switch to student-friendly plans (e.g., Vi Hero, Jio 299). Use college WiFi where possible.",
+    "how to manage credit card bills": "If you have a card, set monthly UPI limit alerts and repay in full before the due date.",
+    "how to split rent with roommates": "Use apps like Splitwise to track all shared expenses: rent, groceries, electricity, WiFi.",
+    "how to avoid overspending": "Withdraw weekly cash and avoid UPI overuse. Stick to a spending limit for each category.",
+    "how to reduce monthly subscriptions": "Use shared Spotify/Netflix family plans or drop OTT subscriptions if not used.",
+    "how to manage money on low income": "Prioritize mess (already paid), essentials, and set ₹100/week aside if possible. Group expenses wherever possible."
 }
 
 # Load embedding model
@@ -61,20 +60,20 @@ def get_pretrained_answer(user_query):
 # Gemini AI for advice
 def get_gemini_advice(expenses, income, user_input=""):
     prompt = f"""
-    We are a group of college students living in a hostel in India. Each of us has a monthly income of ₹{income}. 
-    Our mess fees are already paid and cover basic meals, but the food quality is inconsistent, so sometimes we skip meals. 
-    We have access to a shared kitchen with a free induction oven, but we need to buy our own utensils and ingredients. 
+You are an AI budget advisor for a group of Indian college students living in hostels. 
 
-    Here are our current categorized expenses: {expenses}.
-    {user_input}
+They have already paid for a fixed mess plan (food), but the food quality varies, so they sometimes cook using a shared kitchen (with free induction but they buy utensils and ingredients themselves). 
 
-    Please analyze this scenario and suggest practical, cost-saving strategies suitable for students like us.
-    Focus on food alternatives, utility savings, efficient spending on needs vs wants, and creative ways to manage fluctuating meal habits.
-    Avoid suggesting cutting essentials like academic expenses or medical needs.
-    Make the advice actionable and friendly.
-    """
+Other shared expenses include data plans, group trips, groceries, online subscriptions, and local travel. 
+
+Monthly income is ₹{income}, and current self-reported expenses are: {expenses}.
+
+{user_input}
+
+Provide **realistic**, student-friendly budgeting tips that maintain comfort and flexibility, with suggestions on saving without cutting all fun.
+"""
     try:
-        response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
+        response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
     except Exception as e:
         return f"⚠️ Error getting AI advice: {e}"
@@ -82,12 +81,11 @@ def get_gemini_advice(expenses, income, user_input=""):
 # Gemini AI for refining pre-trained answers
 def rephrase_pretrained_answer(question, base_answer):
     prompt = f"""
-    A user asked: "{question}"
-    Here's a basic answer: "{base_answer}"
-    
-    Please rewrite it to be more helpful, detailed, and easy to understand.
-    Use a friendly and practical tone, suitable for someone new to personal finance.
-    """
+A user asked: "{question}"
+Here's a basic answer: "{base_answer}"
+
+Rephrase it to be more practical, detailed, and easy to follow for an Indian hostel student. 
+Make it friendly and clear.
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
@@ -95,79 +93,74 @@ def rephrase_pretrained_answer(question, base_answer):
         return f"⚠️ Error refining answer: {e}"
 
 # ─────────────────────────────────────────────
-# UI with Smart Auto-Rebalance
+# Streamlit UI with Real-time Rebalance
 # ─────────────────────────────────────────────
 
-st.title("💰 AI Expense Advisor (India Edition)")
-st.write("Adjust your income and expenses to get budget advice.")
+st.title("💰 AI Expense Advisor (India Hostel Edition)")
+st.caption("👨‍🎓 Tailored for college students with prepaid mess + shared kitchen lifestyle")
 
 income = st.slider("Monthly Income (₹)", 500, 5000, 5000)
 
-# Initialize session state
+# Initialize expenses
 if "expenses" not in st.session_state:
     st.session_state.expenses = {
-        "rent": int(income * 0.3),
-        "food": int(income * 0.25),
+        "kitchen+groceries": int(income * 0.25),
+        "data+wifi": int(income * 0.1),
         "transport": int(income * 0.15),
         "entertainment": int(income * 0.1),
-        "savings": int(income * 0.2)
+        "savings": int(income * 0.4)
     }
 
-# Update expenses if income changed
-total_expenses = sum(st.session_state.expenses.values())
-if total_expenses > income:
-    scale_factor = income / total_expenses
-    for key in st.session_state.expenses:
-        st.session_state.expenses[key] = int(st.session_state.expenses[key] * scale_factor)
-
-def rebalance(changed_key):
-    total = sum(st.session_state.expenses.values())
+# Rebalance all to fit within income before rendering
+total = sum(st.session_state.expenses.values())
+if total > income:
     overflow = total - income
-    if overflow > 0:
-        keys = [k for k in st.session_state.expenses if k != changed_key]
-        adjustable_total = sum([st.session_state.expenses[k] for k in keys])
-        for k in keys:
-            if adjustable_total > 0:
-                proportion = st.session_state.expenses[k] / adjustable_total
-                deduction = int(proportion * overflow)
-                st.session_state.expenses[k] = max(0, st.session_state.expenses[k] - deduction)
+    for k in st.session_state.expenses:
+        prop = st.session_state.expenses[k] / total
+        st.session_state.expenses[k] = max(0, int(st.session_state.expenses[k] - prop * overflow))
 
-# Slider labels
+# Define labels
 expense_labels = {
-    "rent": "🏠 Rent/Mortgage (₹)",
-    "food": "🍲 Food Expenses (₹)",
-    "transport": "🚌 Transport (₹)",
-    "entertainment": "🎉 Entertainment (₹)",
-    "savings": "💰 Savings (₹)"
+    "kitchen+groceries": "🍳 Kitchen & Groceries (₹)",
+    "data+wifi": "📱 Data/WiFi/Phone (₹)",
+    "transport": "🚌 Local Transport (₹)",
+    "entertainment": "🎉 Chill/Streaming/Outings (₹)",
+    "savings": "💰 Savings/Backup (₹)"
 }
 
-# Draw sliders with dynamic rebalance
+# Real-time rebalance sliders
 for key, label in expense_labels.items():
-    st.session_state.expenses[key] = st.slider(
-        label, 
-        0, income, 
-        st.session_state.expenses[key], 
-        key=key, 
-        on_change=rebalance, 
-        args=(key,)
-    )
+    new_val = st.slider(label, 0, income, st.session_state.expenses[key], key=key)
+    if new_val != st.session_state.expenses[key]:
+        delta = new_val - st.session_state.expenses[key]
+        st.session_state.expenses[key] = new_val
+
+        # Rebalance others
+        others = [k for k in st.session_state.expenses if k != key]
+        total_other = sum([st.session_state.expenses[k] for k in others])
+        for k in others:
+            if total_other > 0:
+                prop = st.session_state.expenses[k] / total_other
+                st.session_state.expenses[k] = max(0, int(st.session_state.expenses[k] - prop * delta))
+
+        st.experimental_rerun()
 
 expenses = st.session_state.expenses
-user_question = st.text_input("Ask a budgeting question:")
-user_expense_input = st.text_area("Describe any other expenses (optional)")
 
-# Process Question
+# Inputs
+user_question = st.text_input("Ask a budgeting question:")
+user_expense_input = st.text_area("Other group-based expense notes (optional)")
+
+# FAQ / Custom QnA
 if user_question:
     matched_answer = get_pretrained_answer(user_question)
+    st.subheader("💡 AI Refined Answer:")
     if matched_answer:
-        st.subheader("💡 AI Refined Answer from Pre-trained:")
         st.write(rephrase_pretrained_answer(user_question, matched_answer))
     else:
-        st.subheader("💡 AI Generated Answer:")
         st.write(get_gemini_advice(expenses, income, user_question))
 
-# Budget Summary Advice
-if st.button("Get AI Budget Advice"):
-    advice = get_gemini_advice(expenses, income, user_expense_input)
-    st.subheader("💡 AI Advice:")
-    st.write(advice)
+# Budget Summary
+if st.button("Get Budget Advice Summary"):
+    st.subheader("📊 Personalized Budget Tips")
+    st.write(get_gemini_advice(expenses, income, user_expense_input))
