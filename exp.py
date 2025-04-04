@@ -58,21 +58,30 @@ def get_pretrained_answer(user_query):
 
 def get_gemini_advice(expenses, income, user_input=""):
     prompt = f"""
-    A group of Indian college students living in a hostel have already paid for their monthly mess.
-    However, mess food quality is inconsistent — some days it's good, some days it's bad.
-    They also have access to a shared kitchen with free induction stoves, but they must buy ingredients and utensils themselves.
+    You are an AI financial advisor for a group of Indian college students living in a hostel.
+    Their mess fees are prepaid (though sometimes it feels like you're paying to suffer), but the food quality is inconsistent.
+    They have access to a shared kitchen with free induction stoves but must buy their own ingredients and utensils.
 
-    Their monthly income is ₹{income}. Here are the current estimated monthly expenses: {expenses}.
+    Here’s the situation:
+    - Monthly Income: ₹{income}
+    - Monthly Expenses:
+        • Rent/Mortgage: ₹{expenses['rent']}
+        • Food: ₹{expenses['food']}
+        • Transport: ₹{expenses['transport']}
+        • Entertainment: ₹{expenses['entertainment']}
+        • Savings: ₹{expenses['savings']}
+
     {user_input}
 
-    Suggest creative, practical ways they can save money, improve budgeting, and make smarter financial choices.
-    Keep the tone friendly and focused on college life.
+    Give some creative, sarcastic-yet-practical advice on how to save money, budget smartly, and make better financial decisions.
+    Keep it fun, real, and relatable—like a chill senior giving advice, not a boring finance prof. Use a mix of humor and genuine tips.
     """
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
     except Exception as e:
-        return f"⚠\ufe0f Error getting AI advice: {e}"
+        return f"⚠️ Error getting AI advice: {e}"
+
 
 def rephrase_pretrained_answer(question, base_answer):
     prompt = f"""
