@@ -16,26 +16,9 @@ else:
 
 # Predefined FAQs
 pre_trained_qa = {
-    "how to save on groceries": "Buy in bulk, avoid daily random shopping, and plan meals around hostel cooking with friends.",
-    "how much should i save monthly": "Save at least 20%, but even ₹500 counts. Small steps > No steps.",
     "how to reduce electricity bill": "Fan > AC. Unplug stuff. Free sunlight exists — use it.",
     "best way to track expenses": "Use Splitwise for friends, Google Sheets for peace of mind. Track chai runs too.",
     "how to reduce transportation cost": "Cycle, walk, or just bunk. Autos are not budget-friendly for broke students.",
-    "how to build an emergency fund": "Start with ₹500/month. Hide it from yourself. Let it grow silently.",
-    "should i invest or save": "Save till your wallet isn’t crying. Then invest, not before.",
-    "how to save money as a student": "Track Swiggy, avoid impulsive UPI, use campus WiFi, and cook occasionally.",
-    "tips for saving money in india": "Stick to weekly budgets, review Sunday nights, and kill subscriptions you forgot.",
-    "how to avoid impulse buying": "No midnight Amazon scrolls. Sleep instead. Works wonders.",
-    "how to plan a monthly budget": "Split: 50% Needs, 30% Wants, 20% Savings. Adjust if hostel rent is low.",
-    "how to save for travel": "Cut ₹300 from chai & ₹200 from Uber. Boom — travel fund.",
-    "what is a good savings goal": "Start with ₹1,000/month. Goal = ₹10k emergency stash in 6 months.",
-    "how to cut dining expenses": "Limit outside food to 2x/week. Cook Maggi, not regrets.",
-    "how to save on phone bills": "Use hostel WiFi. Switch to prepaid with just-enough data plans.",
-    "how to manage credit card bills": "Pay full amount. Never EMI biryani.",
-    "how to split rent with roommates": "Use Splitwise. And a whiteboard. Avoid drama.",
-    "how to avoid overspending": "Withdraw weekly cash. When cash runs out, so does spending.",
-    "how to reduce monthly subscriptions": "Audit monthly. One OTT is enough. Torrent the rest.",
-    "how to manage money on low income": "Cut all non-essentials. Save ₹100/week. It’s a start."
 }
 
 @st.cache_resource
