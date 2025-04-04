@@ -58,30 +58,29 @@ def get_pretrained_answer(user_query):
 
 def get_gemini_advice(expenses, income, user_input=""):
     prompt = f"""
-You're advising a group of Indian college students living in a hostel. They've already paid their monthly mess fees — so basic food is technically sorted.  
-BUT... let's be honest: the mess food is unpredictable. So their "food" expense here is what they spend *to escape the mess* — things like Swiggy orders, Maggi, or cooking together in a shared kitchen (they bring ingredients & utensils).
+You're advising Indian college students living in a hostel. They've already prepaid their mess fees — so basic meals are technically covered (even if the curry occasionally doubles as paint thinner).
 
-That said — this is **not just about food**.
+The "food" category in their expenses? That’s for ditching the mess — ordering Swiggy, cooking Maggi, or team-cooked hostel feasts with self-bought ingredients.
 
-They’ve got limited monthly income: ₹{income}, and here's how they've currently budgeted it:
+Now here’s their current monthly budget (Total: ₹{income}):
 
-🏠 Rent: ₹{expenses.get("rent", 0)}  
-🍲 Food (mess escape): ₹{expenses.get("food", 0)}  
-🚌 Transport: ₹{expenses.get("transport", 0)}  
-🎉 Entertainment: ₹{expenses.get("entertainment", 0)}  
-💰 Savings: ₹{expenses.get("savings", 0)}
+🏠 Rent: ₹{expenses.get("rent", 0)} — Shared rooms with roommates who snore like generators, but it works.  
+🍲 Food (mess escape): ₹{expenses.get("food", 0)} — Maggi, chai, midnight munchies, and Swiggy regrets.  
+🚌 Transport: ₹{expenses.get("transport", 0)} — From walking 2 km to save ₹15, to taking autos when it rains (or you’re just lazy).  
+🎉 Entertainment: ₹{expenses.get("entertainment", 0)} — Movie nights, random pani puri outings, Spotify Premium (don’t lie), or just recharging after exams.  
+💰 Savings: ₹{expenses.get("savings", 0)} — Emergency fund or the “bro I’m broke” backup plan.
 
 {user_input}
 
-Now your job? Be their financially woke hostel senior who:
-- Points out where their budget might be doing too much (or too little).
-- Suggests how they can balance or rebalance things smartly.
-- Gives realistic saving tips that won’t suck the fun out of college life.
-- Can throw in sarcasm, jokes, or a "been-there-done-that" vibe when needed.
-- Talks like a human. No 'phase 1, phase 2' nonsense. No motivational quotes. Just real talk.
+Your job is to:
+- Look at this expense spread and give them brutally honest but fun advice.
+- Tell them where they might be overspending or under-planning.
+- Suggest realistic tweaks — small changes that feel doable.
+- Keep the tone witty, sarcastic, and rooted in hostel life (think: chai breaks, shared buckets, missed buses, last-minute birthday parties).
+- No corporate lectures. No financial gyaan. Just senior-to-junior real talk.
 
-Think chai breaks, broken buckets, cracked phone screens, missed buses, late-night cravings, and that one friend who always forgets to pay their share — these are your audience.
-    """
+Also: talk like a human. No “phase 1” or “based on analysis” vibes. If they’re overspending on Maggi, say it like it is.
+"""
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
