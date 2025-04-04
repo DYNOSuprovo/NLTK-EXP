@@ -38,8 +38,6 @@ pre_trained_qa = {
     "how to manage money on low income": "Track every rupee, prioritize essentials, and create a strict monthly budget with a fixed saving goal—even ₹100 helps."
 }
 
-
-
 # Load embedding model
 @st.cache_resource
 def load_model():
@@ -88,27 +86,67 @@ def rephrase_pretrained_answer(question, base_answer):
     except Exception as e:
         return f"⚠️ Error refining answer: {e}"
 
-# Streamlit UI
+# ─────────────────────────────────────────────
+# UI with Smart Auto-Rebalance
+# ─────────────────────────────────────────────
+
 st.title("💰 AI Expense Advisor (India Edition)")
 st.write("Adjust your income and expenses to get budget advice.")
 
 income = st.slider("Monthly Income (₹)", 500, 5000, 5000)
-rent = st.slider("Rent/Mortgage (₹)", 0, 2000, 1500)
-food = st.slider("Food Expenses (₹)", 0, 1500, 8000)
-transport = st.slider("Transport (₹)", 0, 500, 1000)
-entertainment = st.slider("Entertainment (₹)", 0, 500, 1000)
-savings = st.slider("Savings (₹)", 0, 200, 100)
 
+# Initialize session state
+if "expenses" not in st.session_state:
+    st.session_state.expenses = {
+        "rent": int(income * 0.3),
+        "food": int(income * 0.25),
+        "transport": int(income * 0.15),
+        "entertainment": int(income * 0.1),
+        "savings": int(income * 0.2)
+    }
+
+# Update expenses if income changed
+total_expenses = sum(st.session_state.expenses.values())
+if total_expenses > income:
+    scale_factor = income / total_expenses
+    for key in st.session_state.expenses:
+        st.session_state.expenses[key] = int(st.session_state.expenses[key] * scale_factor)
+
+def rebalance(changed_key):
+    total = sum(st.session_state.expenses.values())
+    overflow = total - income
+    if overflow > 0:
+        keys = [k for k in st.session_state.expenses if k != changed_key]
+        adjustable_total = sum([st.session_state.expenses[k] for k in keys])
+        for k in keys:
+            if adjustable_total > 0:
+                proportion = st.session_state.expenses[k] / adjustable_total
+                deduction = int(proportion * overflow)
+                st.session_state.expenses[k] = max(0, st.session_state.expenses[k] - deduction)
+
+# Slider labels
+expense_labels = {
+    "rent": "🏠 Rent/Mortgage (₹)",
+    "food": "🍲 Food Expenses (₹)",
+    "transport": "🚌 Transport (₹)",
+    "entertainment": "🎉 Entertainment (₹)",
+    "savings": "💰 Savings (₹)"
+}
+
+# Draw sliders with dynamic rebalance
+for key, label in expense_labels.items():
+    st.session_state.expenses[key] = st.slider(
+        label, 
+        0, income, 
+        st.session_state.expenses[key], 
+        key=key, 
+        on_change=rebalance, 
+        args=(key,)
+    )
+
+expenses = st.session_state.expenses
 user_question = st.text_input("Ask a budgeting question:")
 user_expense_input = st.text_area("Describe any other expenses (optional)")
-
-expenses = {
-    "rent": rent,
-    "food": food,
-    "transport": transport,
-    "entertainment": entertainment,
-    "savings": savings
-}
 
 # Process Question
 if user_question:
