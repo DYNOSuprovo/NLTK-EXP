@@ -3,6 +3,8 @@ import streamlit as st
 import google.generativeai as genai
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer, util
+import matplotlib.pyplot as plt
+import textwrap
 
 # Load environment variables
 load_dotenv()
@@ -18,7 +20,7 @@ else:
 pre_trained_qa = {
     "how to reduce electricity bill": "Fan > AC. Unplug stuff. Free sunlight exists — use it.",
     "best way to track expenses": "Use Splitwise for friends, Google Sheets for peace of mind. Track chai runs too.",
-    "how to reduce transportation cost": "Cycle, walk, or just bunk. Autos are not budget-friendly for broke students.",
+    "how to reduce transportation cost": "Cycle, walk, or just bunk. Autos are not budget-friendly for broke students."
 }
 
 @st.cache_resource
@@ -38,49 +40,56 @@ def get_pretrained_answer(user_query):
         return pre_trained_qa[qa_keys[best_idx]]
     return None
 
-def get_gemini_advice(expenses, income, user_input=""):
-    prompt = f"""
-You're a broke-but-wise Indian hostel senior advising junior students on budgeting.
-They’ve already paid the mess fee (so yes, "food" here = Swiggy escapes, Maggi runs, or squad-cooked hostel thalis).
+def get_gemini_advice(expenses, income, user_input="", dev_mode=False):
+    if dev_mode:
+        return "🚧 Dev Mode is ON. Gemini call skipped."
 
-Monthly income: ₹{income}
-Here’s their spending:
+    prompt = "\n".join([
+        "You're a broke-but-wise Indian hostel senior advising junior students on budgeting.",
+        "They’ve already paid the mess fee (so yes, 'food' here = Swiggy escapes, Maggi runs, or squad-cooked hostel thalis).",
+        "",
+        f"Monthly income: ₹{income}",
+        "Here’s their spending:",
+        f"✏️ Stationaries: ₹{expenses.get('stationaries', 0)}",
+        f"🍲 Food: ₹{expenses.get('food', 0)}",
+        f"🚌 Transport: ₹{expenses.get('transport', 0)}",
+        f"🎉 Entertainment: ₹{expenses.get('entertainment', 0)}",
+        f"💰 Savings: ₹{expenses.get('savings', 0)}",
+        "",
+        "Your job?",
+        "- Roast or respect each category.",
+        "- Suggest if it's too high, too low, or just right.",
+        "- Give sarcastic, practical, and hostel-life hacks.",
+        "",
+        f"Extra info from user: {user_input}",
+        "",
+        "Respond ONLY in this format:",
+        "✏️ Stationaries: ...",
+        "🍲 Food: ...",
+        "🚌 Transport: ...",
+        "🎉 Entertainment: ...",
+        "💰 Savings: ...",
+        "🧠 Overall: ..."
+    ])
 
-🏠 Rent: ₹{expenses.get("rent", 0)}
-🍲 Food: ₹{expenses.get("food", 0)}
-🚌 Transport: ₹{expenses.get("transport", 0)}
-🎉 Entertainment: ₹{expenses.get("entertainment", 0)}
-💰 Savings: ₹{expenses.get("savings", 0)}
-
-Your job?
-- Roast or respect each category.
-- Suggest if it's too high, too low, or just right.
-- Give sarcastic, practical, and hostel-life hacks.
-
-Extra info from user: {user_input}
-
-Respond ONLY in this format:
-🏠 Rent: ...
-🍲 Food: ...
-🚌 Transport: ...
-🎉 Entertainment: ...
-💰 Savings: ...
-🧠 Overall: ...
-"""
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
     except Exception as e:
         return f"⚠️ Error getting AI advice: {e}"
 
-def rephrase_pretrained_answer(question, base_answer):
-    prompt = f"""
-A user asked: "{question}"
-Here’s a basic answer: "{base_answer}"
+def rephrase_pretrained_answer(question, base_answer, dev_mode=False):
+    if dev_mode:
+        return f"🚧 Dev Mode: Skipping Gemini call. Base answer: {base_answer}"
 
-Make it spicy, sarcastic, and specific for broke Indian hostel students who live on Swiggy, chai, and hope.
-Keep it short, real, and funny.
-"""
+    prompt = "\n".join([
+        f"A user asked: \"{question}\"",
+        f"Here’s a basic answer: \"{base_answer}\"",
+        "",
+        "Make it spicy, sarcastic, and specific for broke Indian hostel students who live on Swiggy, chai, and hope.",
+        "Keep it short, real, and funny."
+    ])
+
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
@@ -88,15 +97,17 @@ Keep it short, real, and funny.
         return f"⚠️ Error refining answer: {e}"
 
 # UI Section
-
 st.title("💰 AI Expense Advisor (India Edition)")
 st.write("Adjust income/expenses to get brutally honest budget advice. Built for hostel legends like you.")
+
+# Toggle Dev Mode
+dev_mode = st.checkbox("🛠️ Dev Mode (Skip Gemini API calls)")
 
 income = st.slider("Monthly Income (₹)", 500, 5000, 5000, step=100)
 
 if "expenses" not in st.session_state:
     st.session_state.expenses = {
-        "rent": int(income * 0.3),
+        "stationaries": int(income * 0.3),
         "food": int(income * 0.25),
         "transport": int(income * 0.15),
         "entertainment": int(income * 0.1),
@@ -112,7 +123,7 @@ if overflow > 0:
         st.session_state.expenses[k] = max(0, st.session_state.expenses[k])
 
 expense_labels = {
-    "rent": "🏠 Rent (₹)",
+    "stationaries": "✏️ Stationaries (₹)",
     "food": "🍲 Food (₹)",
     "transport": "🚌 Transport (₹)",
     "entertainment": "🎉 Entertainment (₹)",
@@ -141,19 +152,44 @@ if rerun_needed and changed_key:
     st.rerun()
 
 expenses = st.session_state.expenses
+
+# Add pie chart for expenses
+st.subheader("📊 Budget Breakdown")
+fig, ax = plt.subplots()
+labels = [label for label in expense_labels.values()]
+sizes = [expenses[k] for k in expense_labels.keys()]
+ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
+ax.axis('equal')
+st.pyplot(fig)
+
+# Budgeting QnA
 user_question = st.text_input("❓ Ask a budgeting question:")
 user_expense_input = st.text_area("📋 Mention any extra expenses (optional):")
+
+if "query_history" not in st.session_state:
+    st.session_state.query_history = []
 
 if user_question:
     matched_answer = get_pretrained_answer(user_question)
     if matched_answer:
+        spicy_response = rephrase_pretrained_answer(user_question, matched_answer, dev_mode)
         st.subheader("💡 Pre-Trained Answer (Roasted & Real):")
-        st.write(rephrase_pretrained_answer(user_question, matched_answer))
+        st.write(spicy_response)
+        st.session_state.query_history.append((user_question, spicy_response))
     else:
+        ai_response = get_gemini_advice(expenses, income, user_question, dev_mode)
         st.subheader("💡 AI Generated Answer:")
-        st.write(get_gemini_advice(expenses, income, user_question))
+        st.write(ai_response)
+        st.session_state.query_history.append((user_question, ai_response))
 
+# Display previous Q&A
+if st.session_state.query_history:
+    with st.expander("🧠 Previously Asked"):
+        for q, a in st.session_state.query_history[-5:][::-1]:
+            st.markdown(f"**Q:** {q}\n\n**A:** {a}")
+
+# Button for main advice
 if st.button("✨ Get AI Budget Advice"):
-    advice = get_gemini_advice(expenses, income, user_expense_input)
+    advice = get_gemini_advice(expenses, income, user_expense_input, dev_mode)
     st.subheader("💡 AI Advice:")
     st.write(advice)
