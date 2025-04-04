@@ -60,29 +60,34 @@ def get_gemini_advice(expenses, income, user_input=""):
     prompt = f"""
 You're advising a group of Indian college students living in a hostel.
 
-They’ve already prepaid their mess fees — so technically, food is covered (if we can call yellow water and mystery sabzi "food"). So the "food" budget here? That’s what they spend to *escape the mess* — Swiggy splurges, Maggi nights, or squad-cooked hostel dinners using their own stash of ingredients.
+They’ve already prepaid for the mess — so technically, food is “sorted” (if yellow dal water counts). The "food" budget here? That's strictly for ditching the mess — ordering from Swiggy, buying Maggi, or pooling money for hostel kitchen adventures.
 
-Now here’s their monthly income and how they’ve divided it: ₹{income} total.
+Now here’s their budget breakdown. Monthly income: ₹{income}
 
 🏠 Rent: ₹{expenses.get("rent", 0)}  
-🍲 Food (a.k.a. 'Save Me From the Mess' fund): ₹{expenses.get("food", 0)}  
+🍲 Food (Swiggy, Maggi, hostel-cooked escapes): ₹{expenses.get("food", 0)}  
 🚌 Transport: ₹{expenses.get("transport", 0)}  
-🎉 Entertainment: ₹{expenses.get("entertainment", 0)}  
+🎉 Entertainment (movies, chai at 3am, pondside gossip): ₹{expenses.get("entertainment", 0)}  
 💰 Savings: ₹{expenses.get("savings", 0)}
 
-Your job:
-- Roast or respect their budgeting decisions — up to you.
-- Tell them if any category is totally out of whack (why is food more than rent??).
-- Suggest smart (not boring) fixes.
-- Relate like a senior who’s *been there, broke that* — not a lecturebot.
-- Talk like a human. Use sarcasm, realism, hostel vibes — chai stalls, free college events, pondside gossip, broken fan blades… the works.
-- Avoid "phase 1, phase 2" MBA talk. No motivational quotes either. Just real, witty, usable advice.
+YOUR JOB: Analyze each category **separately** — not one big boring paragraph.
+For every category:
+- Say whether the spending is sensible, too high, or suspiciously low.
+- Suggest realistic, hostel-proof tips to save or optimize (e.g., walk instead of autos, free college fests for entertainment, roommate cost-splitting, etc.).
+- Feel free to use sarcasm, humor, or roasted-senior tone if needed — but keep it useful.
+- Don't do “phase 1, phase 2” corporate nonsense. Just straight-up, hostel-style real talk.
 
-If there's any extra user input, like a specific goal or complaint, consider that too:
-
+If there's any extra context or user input, it's here. Address it if relevant:
 {user_input}
 
-Now go full hostel-senior mode.
+Respond in this format:
+🔍 Rent: [Your advice]
+🍜 Food: [Your advice]
+🛺 Transport: [Your advice]
+🎭 Entertainment: [Your advice]
+💸 Savings: [Your advice]
+
+Wrap it up with one or two lines of honest summary or encouragement — no motivational quotes. Just human-to-human.
     """
     return prompt
 
