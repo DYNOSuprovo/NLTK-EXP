@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer, util
 import matplotlib.pyplot as plt
 import textwrap
+import random
 
 # Load environment variables
 load_dotenv()
@@ -14,7 +15,7 @@ api_key = os.getenv("GOOGLE_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
 else:
-    st.error("⚠️ API key is missing! Please check your .env file or Streamlit secrets.")
+    st.error("\u26a0\ufe0f API key is missing! Please check your .env file or Streamlit secrets.")
 
 # Predefined FAQs
 pre_trained_qa = {
@@ -40,47 +41,67 @@ def get_pretrained_answer(user_query):
         return pre_trained_qa[qa_keys[best_idx]]
     return None
 
+def random_intro():
+    return random.choice([
+        "Let's audit this mess of a budget, shall we?",
+        "Okay, let’s see where your money is *evaporating*.",
+        "Financial report card time! Spoiler: You might fail.",
+        "Welcome to Budget Roast 101."
+    ])
+
+def random_outro():
+    return random.choice([
+        "In short, stop acting rich on a poor man’s budget.",
+        "Hope this helps you survive till the next UPI alert.",
+        "Now go, live like a legend — or at least a functioning broke student.",
+        "At this rate, you’ll be eating Maggi for dinner. Every day. Forever."
+    ])
+
 def get_gemini_advice(expenses, income, user_input="", dev_mode=False):
     if dev_mode:
-        return "🚧 Dev Mode is ON. Gemini call skipped."
+        return "\ud83d\udea7 Dev Mode is ON. Gemini call skipped."
+
+    categories = list(expenses.keys())
+    random.shuffle(categories)
+
+    example_section = "\n".join([
+        "Examples of tone:",
+        "✏️ Stationaries: Buying 3 pens a month is fine. Buying 3 types of highlighters to color-code your already empty schedule? No.",
+        "🍲 Food: ₹700 on Swiggy and ₹20 on groceries? Bro, that’s not budgeting, that’s betrayal of Maggi.",
+        "🚌 Transport: If Uber knows your name, you’re not budgeting right."
+    ])
 
     prompt = "\n".join([
+        random_intro(),
         "You're a broke-but-wise Indian hostel senior advising junior students on budgeting.",
         "They’ve already paid the mess fee (so yes, 'food' here = Swiggy escapes, Maggi runs, or squad-cooked hostel thalis).",
-        "",
         f"Monthly income: ₹{income}",
         "Here’s their spending:",
-        f"✏️ Stationaries: ₹{expenses.get('stationaries', 0)}",
-        f"🍲 Food: ₹{expenses.get('food', 0)}",
-        f"🚌 Transport: ₹{expenses.get('transport', 0)}",
-        f"🎉 Entertainment: ₹{expenses.get('entertainment', 0)}",
-        f"💰 Savings: ₹{expenses.get('savings', 0)}",
+        *[f"{key.capitalize()}: ₹{expenses[key]}" for key in categories],
         "",
-        "Your job?",
+        example_section,
+        "",
+        "Your job:",
         "- Roast or respect each category.",
         "- Suggest if it's too high, too low, or just right.",
         "- Give sarcastic, practical, and hostel-life hacks.",
-        "",
         f"Extra info from user: {user_input}",
         "",
         "Respond ONLY in this format:",
-        "✏️ Stationaries: ...",
-        "🍲 Food: ...",
-        "🚌 Transport: ...",
-        "🎉 Entertainment: ...",
-        "💰 Savings: ...",
-        "🧠 Overall: ..."
+        *[f"{key.capitalize()}: ..." for key in categories],
+        "🧠 Overall: ...",
+        random_outro()
     ])
 
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
     except Exception as e:
-        return f"⚠️ Error getting AI advice: {e}"
+        return f"\u26a0\ufe0f Error getting AI advice: {e}"
 
 def rephrase_pretrained_answer(question, base_answer, dev_mode=False):
     if dev_mode:
-        return f"🚧 Dev Mode: Skipping Gemini call. Base answer: {base_answer}"
+        return f"\ud83d\udea7 Dev Mode: Skipping Gemini call. Base answer: {base_answer}"
 
     prompt = "\n".join([
         f"A user asked: \"{question}\"",
@@ -94,14 +115,13 @@ def rephrase_pretrained_answer(question, base_answer, dev_mode=False):
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
     except Exception as e:
-        return f"⚠️ Error refining answer: {e}"
+        return f"\u26a0\ufe0f Error refining answer: {e}"
 
 # UI Section
-st.title("💰 AI Expense Advisor (India Edition)")
+st.title("\ud83d\udcb0 AI Expense Advisor (India Edition)")
 st.write("Adjust income/expenses to get brutally honest budget advice. Built for hostel legends like you.")
 
-# Toggle Dev Mode
-dev_mode = st.checkbox("🛠️ Dev Mode (Skip Gemini API calls)")
+dev_mode = st.checkbox("\ud83d\udee0\ufe0f Dev Mode (Skip Gemini API calls)")
 
 income = st.slider("Monthly Income (₹)", 500, 5000, 5000, step=100)
 
@@ -114,7 +134,6 @@ if "expenses" not in st.session_state:
         "savings": int(income * 0.2)
     }
 
-# Rebalance if total exceeds income
 total = sum(st.session_state.expenses.values())
 overflow = total - income
 if overflow > 0:
@@ -153,8 +172,7 @@ if rerun_needed and changed_key:
 
 expenses = st.session_state.expenses
 
-# Add pie chart for expenses
-st.subheader("📊 Budget Breakdown")
+st.subheader("\ud83d\udcca Budget Breakdown")
 fig, ax = plt.subplots()
 labels = [label for label in expense_labels.values()]
 sizes = [expenses[k] for k in expense_labels.keys()]
@@ -162,9 +180,8 @@ ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
 ax.axis('equal')
 st.pyplot(fig)
 
-# Budgeting QnA
-user_question = st.text_input("❓ Ask a budgeting question:")
-user_expense_input = st.text_area("📋 Mention any extra expenses (optional):")
+user_question = st.text_input("\u2753 Ask a budgeting question:")
+user_expense_input = st.text_area("\ud83d\udccb Mention any extra expenses (optional):")
 
 if "query_history" not in st.session_state:
     st.session_state.query_history = []
@@ -173,23 +190,21 @@ if user_question:
     matched_answer = get_pretrained_answer(user_question)
     if matched_answer:
         spicy_response = rephrase_pretrained_answer(user_question, matched_answer, dev_mode)
-        st.subheader("💡 Pre-Trained Answer (Roasted & Real):")
+        st.subheader("\ud83d\udca1 Pre-Trained Answer (Roasted & Real):")
         st.write(spicy_response)
         st.session_state.query_history.append((user_question, spicy_response))
     else:
         ai_response = get_gemini_advice(expenses, income, user_question, dev_mode)
-        st.subheader("💡 AI Generated Answer:")
+        st.subheader("\ud83d\udca1 AI Generated Answer:")
         st.write(ai_response)
         st.session_state.query_history.append((user_question, ai_response))
 
-# Display previous Q&A
 if st.session_state.query_history:
-    with st.expander("🧠 Previously Asked"):
+    with st.expander("\ud83e\udde0 Previously Asked"):
         for q, a in st.session_state.query_history[-5:][::-1]:
             st.markdown(f"**Q:** {q}\n\n**A:** {a}")
 
-# Button for main advice
-if st.button("✨ Get AI Budget Advice"):
+if st.button("\u2728 Get AI Budget Advice"):
     advice = get_gemini_advice(expenses, income, user_expense_input, dev_mode)
-    st.subheader("💡 AI Advice:")
+    st.subheader("\ud83d\udca1 AI Advice:")
     st.write(advice)
