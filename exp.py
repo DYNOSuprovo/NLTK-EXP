@@ -61,13 +61,20 @@ def get_pretrained_answer(user_query):
 # Gemini AI for advice
 def get_gemini_advice(expenses, income, user_input=""):
     prompt = f"""
-    My monthly income is ₹{income}. Here are my expenses: {expenses}.
+    We are a group of college students living in a hostel in India. Each of us has a monthly income of ₹{income}. 
+    Our mess fees are already paid and cover basic meals, but the food quality is inconsistent, so sometimes we skip meals. 
+    We have access to a shared kitchen with a free induction oven, but we need to buy our own utensils and ingredients. 
+
+    Here are our current categorized expenses: {expenses}.
     {user_input}
-    Analyze my budget and suggest practical ways to save money without affecting my lifestyle.
-    Provide specific, actionable tips.
+
+    Please analyze this scenario and suggest practical, cost-saving strategies suitable for students like us.
+    Focus on food alternatives, utility savings, efficient spending on needs vs wants, and creative ways to manage fluctuating meal habits.
+    Avoid suggesting cutting essentials like academic expenses or medical needs.
+    Make the advice actionable and friendly.
     """
     try:
-        response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
+        response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
         return response.text
     except Exception as e:
         return f"⚠️ Error getting AI advice: {e}"
