@@ -12,7 +12,7 @@ api_key = os.getenv("GOOGLE_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
 else:
-    st.error("⚠️ API key is missing! Please check your .env file.")
+    st.error("\u26a0\ufe0f API key is missing! Please check your .env file.")
 
 # Pre-trained FAQ answers
 pre_trained_qa = {
@@ -48,6 +48,7 @@ qa_keys = list(pre_trained_qa.keys())
 qa_embeddings = model.encode(qa_keys)
 
 # Match user query to pre-trained
+
 def get_pretrained_answer(user_query):
     query_embedding = model.encode(user_query)
     similarities = util.cos_sim(query_embedding, qa_embeddings)[0]
@@ -74,32 +75,28 @@ def get_gemini_advice(expenses, income, user_input=""):
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
     except Exception as e:
-        return f"⚠️ Error getting AI advice: {e}"
+        return f"⚠\ufe0f Error getting AI advice: {e}"
 
 # Rephrase pre-trained answer
 def rephrase_pretrained_answer(question, base_answer):
     prompt = f"""
     A user asked: "{question}"
     Here's a basic answer: "{base_answer}"
-    
+
     Rewrite it with more helpful details and a friendly tone suitable for Indian college students managing hostel life and monthly expenses.
     """
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
     except Exception as e:
-        return f"⚠️ Error refining answer: {e}"
+        return f"⚠\ufe0f Error refining answer: {e}"
 
-# ─────────────────────────────────────────────
-# UI with Dynamic Expense Rebalancing
-# ─────────────────────────────────────────────
-
+# UI
 st.title("💰 AI Expense Advisor (India Edition)")
 st.write("Adjust your income and expenses to get budget advice. Built for hostel students who want smart money tips.")
 
 income = st.slider("Monthly Income (₹)", 500, 5000, 5000, step=100)
 
-# Initialize session state
 if "expenses" not in st.session_state:
     st.session_state.expenses = {
         "rent": int(income * 0.3),
@@ -109,17 +106,14 @@ if "expenses" not in st.session_state:
         "savings": int(income * 0.2)
     }
 
-# Rebalance on total overflow
+# Rebalance if overflow
 total = sum(st.session_state.expenses.values())
 overflow = total - income
-
 if overflow > 0:
-    adjustable_keys = list(st.session_state.expenses.keys())
-    for k in adjustable_keys:
+    for k in st.session_state.expenses:
         st.session_state.expenses[k] -= int((st.session_state.expenses[k] / total) * overflow)
         st.session_state.expenses[k] = max(0, st.session_state.expenses[k])
 
-# Expense labels with emojis
 expense_labels = {
     "rent": "🏠 Rent/Mortgage (₹)",
     "food": "🍲 Food Expenses (₹)",
@@ -128,31 +122,35 @@ expense_labels = {
     "savings": "💰 Savings (₹)"
 }
 
-# Draw sliders and detect changes
-for key, label in expense_labels.items():
-    new_value = st.slider(label, 0, income, st.session_state.expenses[key], key=key)
+# Track triggering key to avoid infinite reruns
+updated_key = st.session_state.get("updated_key", None)
 
-    if new_value != st.session_state.expenses[key]:
-        delta = new_value - st.session_state.expenses[key]
+for key, label in expense_labels.items():
+    current_value = st.session_state.expenses[key]
+    new_value = st.slider(label, 0, income, current_value, key=key)
+
+    if new_value != current_value and updated_key != key:
+        delta = new_value - current_value
         st.session_state.expenses[key] = new_value
 
-        # Redistribute among others
         other_keys = [k for k in st.session_state.expenses if k != key]
         total_others = sum([st.session_state.expenses[k] for k in other_keys])
 
         for k in other_keys:
             if total_others > 0:
                 proportion = st.session_state.expenses[k] / total_others
-                st.session_state.expenses[k] = max(0, st.session_state.expenses[k] - int(proportion * delta))
+                deduction = int(proportion * delta)
+                st.session_state.expenses[k] = max(0, st.session_state.expenses[k] - deduction)
 
+        st.session_state["updated_key"] = key
         st.experimental_rerun()
 
-# Inputs
+st.session_state["updated_key"] = None
+
 expenses = st.session_state.expenses
 user_question = st.text_input("❓ Ask a budgeting question:")
 user_expense_input = st.text_area("📋 Mention any extra expenses (optional):")
 
-# Handle question
 if user_question:
     matched_answer = get_pretrained_answer(user_question)
     if matched_answer:
@@ -162,8 +160,6 @@ if user_question:
         st.subheader("💡 AI Generated Answer:")
         st.write(get_gemini_advice(expenses, income, user_question))
 
-# Button for general advice
 if st.button("✨ Get AI Budget Advice"):
-    advice = get_gemini_advice(expenses, income, user_expense_input)
     st.subheader("💡 AI Advice:")
-    st.write(advice)
+    st.write(get_gemini_advice(expenses, income, user_expense_input))
