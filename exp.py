@@ -135,7 +135,7 @@ changed_key = None
 
 for key, label in expense_labels.items():
     current_value = st.session_state.expenses[key]
-    new_value = st.slider(label, 0, income, current_value, key=key)
+    new_value = st.slider(label, 0, income, current_value, step=10, key=key)
     if new_value != current_value and not rerun_needed:
         delta = new_value - current_value
         st.session_state.expenses[key] = new_value
