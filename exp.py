@@ -80,12 +80,12 @@ Provide **realistic**, student-friendly budgeting tips that maintain comfort and
 
 # Gemini AI for refining pre-trained answers
 def rephrase_pretrained_answer(question, base_answer):
-    prompt = f"""
+    prompt = f'''
 A user asked: "{question}"
 Here's a basic answer: "{base_answer}"
 
 Rephrase it to be more practical, detailed, and easy to follow for an Indian hostel student. 
-Make it friendly and clear.
+Make it friendly and clear.'''
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
