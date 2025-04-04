@@ -97,6 +97,7 @@ st.write("Adjust your income and expenses to get budget advice. Built for hostel
 
 income = st.slider("Monthly Income (₹)", 500, 5000, 5000, step=100)
 
+# Initialize session state
 if "expenses" not in st.session_state:
     st.session_state.expenses = {
         "rent": int(income * 0.3),
@@ -106,14 +107,17 @@ if "expenses" not in st.session_state:
         "savings": int(income * 0.2)
     }
 
-# Rebalance if overflow
+# Rebalance on total overflow
 total = sum(st.session_state.expenses.values())
 overflow = total - income
+
 if overflow > 0:
-    for k in st.session_state.expenses:
+    adjustable_keys = list(st.session_state.expenses.keys())
+    for k in adjustable_keys:
         st.session_state.expenses[k] -= int((st.session_state.expenses[k] / total) * overflow)
         st.session_state.expenses[k] = max(0, st.session_state.expenses[k])
 
+# Expense labels
 expense_labels = {
     "rent": "🏠 Rent/Mortgage (₹)",
     "food": "🍲 Food Expenses (₹)",
@@ -122,15 +126,13 @@ expense_labels = {
     "savings": "💰 Savings (₹)"
 }
 
-# Track triggering key to avoid infinite reruns
-updated_key = st.session_state.get("updated_key", None)
-
+# Draw sliders and detect changes
+rerun_needed = False
 for key, label in expense_labels.items():
-    current_value = st.session_state.expenses[key]
-    new_value = st.slider(label, 0, income, current_value, key=key)
+    new_value = st.slider(label, 0, income, st.session_state.expenses[key], key=key)
 
-    if new_value != current_value and updated_key != key:
-        delta = new_value - current_value
+    if new_value != st.session_state.expenses[key]:
+        delta = new_value - st.session_state.expenses[key]
         st.session_state.expenses[key] = new_value
 
         other_keys = [k for k in st.session_state.expenses if k != key]
@@ -139,18 +141,19 @@ for key, label in expense_labels.items():
         for k in other_keys:
             if total_others > 0:
                 proportion = st.session_state.expenses[k] / total_others
-                deduction = int(proportion * delta)
-                st.session_state.expenses[k] = max(0, st.session_state.expenses[k] - deduction)
+                st.session_state.expenses[k] = max(0, st.session_state.expenses[k] - int(proportion * delta))
 
-        st.session_state["updated_key"] = key
-        st.experimental_rerun()
+        rerun_needed = True
 
-st.session_state["updated_key"] = None
+if rerun_needed:
+    st.experimental_rerun()
 
+# Inputs
 expenses = st.session_state.expenses
 user_question = st.text_input("❓ Ask a budgeting question:")
 user_expense_input = st.text_area("📋 Mention any extra expenses (optional):")
 
+# Handle question
 if user_question:
     matched_answer = get_pretrained_answer(user_question)
     if matched_answer:
@@ -160,6 +163,8 @@ if user_question:
         st.subheader("💡 AI Generated Answer:")
         st.write(get_gemini_advice(expenses, income, user_question))
 
+# Button for general advice
 if st.button("✨ Get AI Budget Advice"):
+    advice = get_gemini_advice(expenses, income, user_expense_input)
     st.subheader("💡 AI Advice:")
-    st.write(get_gemini_advice(expenses, income, user_expense_input))
+    st.write(advice)
