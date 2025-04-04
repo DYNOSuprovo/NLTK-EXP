@@ -16,12 +16,29 @@ else:
 
 # Pre-trained FAQ answers
 pre_trained_qa = {
-    "how to save on groceries": "Try meal planning, bulk buying, and using discount coupons.",
-    "how much should i save monthly": "A good rule is to save at least 20% of your income.",
-    "how to reduce electricity bill": "Use energy-efficient appliances, unplug devices, and optimize usage.",
-    "best way to track expenses": "Use budgeting apps or maintain an expense tracker.",
-    "how to reduce transportation cost": "Use public transport, carpool, or opt for fuel-efficient vehicles."
+    "how to save on groceries": "Create a monthly grocery list, buy in bulk for staples, and track weekly spending to avoid overspending.",
+    "how much should i save monthly": "Aim to save at least 20% of your monthly income. Adjust this based on fixed expenses and priorities.",
+    "how to reduce electricity bill": "Use energy-efficient appliances, turn off devices when not in use, and monitor monthly power usage.",
+    "best way to track expenses": "Use apps like Walnut or Excel sheets to log daily spending and review your monthly outflow.",
+    "how to reduce transportation cost": "Plan commute routes in advance, use monthly public transport passes, or consider ride-sharing to cut costs.",
+    "how to build an emergency fund": "Set aside a fixed monthly amount, like ₹500–₹2000, until you accumulate 3–6 months' worth of expenses.",
+    "should i invest or save": "First cover monthly savings goals (e.g., rent, bills, emergency fund), then invest leftover funds wisely.",
+    "how to save money as a student": "Track monthly expenses on food and transport, use campus amenities, and avoid frequent takeouts.",
+    "tips for saving money in india": "Limit impulsive UPI payments, avoid mid-month overspending, and review your monthly expenses every weekend.",
+    "how to avoid impulse buying": "Stick to a monthly budget for non-essentials and avoid online browsing without intent.",
+    "how to plan a monthly budget": "Split income into needs (50%), wants (30%), and savings (20%). Adjust based on actual monthly expenses.",
+    "how to save for travel": "Include a travel fund in your monthly budget—cut back slightly on luxuries like entertainment or food delivery.",
+    "what is a good savings goal": "Saving 20–30% of monthly income is a healthy goal. Set clear targets like ₹10,000 in 6 months.",
+    "how to cut dining expenses": "Limit dine-outs to once or twice a month. Track how much you spend on food apps monthly.",
+    "how to save on phone bills": "Switch to a plan that fits your monthly usage. Track data usage to avoid overages.",
+    "how to manage credit card bills": "Pay off the full due amount every month. Set a fixed credit limit for yourself to avoid overuse.",
+    "how to split rent with roommates": "Use apps like Splitwise and ensure each person's share is included in monthly planning.",
+    "how to avoid overspending": "Categorize monthly expenses, avoid frequent UPI app usage, and stick to weekly spending caps.",
+    "how to reduce monthly subscriptions": "Audit all your subscriptions once a month. Cancel unused ones or switch to family plans.",
+    "how to manage money on low income": "Track every rupee, prioritize essentials, and create a strict monthly budget with a fixed saving goal—even ₹100 helps."
 }
+
+
 
 # Load embedding model
 @st.cache_resource
