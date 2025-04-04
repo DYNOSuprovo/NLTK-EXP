@@ -58,23 +58,29 @@ def get_pretrained_answer(user_query):
 
 def get_gemini_advice(expenses, income, user_input=""):
     prompt = f"""
-    You are an AI financial advisor for a group of Indian college students living in a hostel.
-    Their mess fees are prepaid (though sometimes it feels like you're paying to suffer), but the food quality is inconsistent.
-    They have access to a shared kitchen with free induction stoves but must buy their own ingredients and utensils.
+You're advising a group of Indian college students living in a hostel. They've already paid their monthly mess fees — so basic food is technically sorted.  
+BUT... let's be honest: the mess food is unpredictable. So their "food" expense here is what they spend *to escape the mess* — things like Swiggy orders, Maggi, or cooking together in a shared kitchen (they bring ingredients & utensils).
 
-    Here’s the situation:
-    - Monthly Income: ₹{income}
-    - Monthly Expenses:
-        • Rent/Mortgage: ₹{expenses['rent']}
-        • Food: ₹{expenses['food']}
-        • Transport: ₹{expenses['transport']}
-        • Entertainment: ₹{expenses['entertainment']}
-        • Savings: ₹{expenses['savings']}
+That said — this is **not just about food**.
 
-    {user_input}
+They’ve got limited monthly income: ₹{income}, and here's how they've currently budgeted it:
 
-    Give some creative, sarcastic-yet-practical advice on how to save money, budget smartly, and make better financial decisions.
-    Keep it fun, real, and relatable—like a chill senior giving advice, not a boring finance prof. Use a mix of humor and genuine tips.
+🏠 Rent: ₹{expenses.get("rent", 0)}  
+🍲 Food (mess escape): ₹{expenses.get("food", 0)}  
+🚌 Transport: ₹{expenses.get("transport", 0)}  
+🎉 Entertainment: ₹{expenses.get("entertainment", 0)}  
+💰 Savings: ₹{expenses.get("savings", 0)}
+
+{user_input}
+
+Now your job? Be their financially woke hostel senior who:
+- Points out where their budget might be doing too much (or too little).
+- Suggests how they can balance or rebalance things smartly.
+- Gives realistic saving tips that won’t suck the fun out of college life.
+- Can throw in sarcasm, jokes, or a "been-there-done-that" vibe when needed.
+- Talks like a human. No 'phase 1, phase 2' nonsense. No motivational quotes. Just real talk.
+
+Think chai breaks, broken buckets, cracked phone screens, missed buses, late-night cravings, and that one friend who always forgets to pay their share — these are your audience.
     """
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
