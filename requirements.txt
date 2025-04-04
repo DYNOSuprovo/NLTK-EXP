@@ -2,6 +2,4 @@ streamlit
 google-generativeai
 python-dotenv
 sentence-transformers
-torch
-scikit-learn
-transformers
+matplotlib
