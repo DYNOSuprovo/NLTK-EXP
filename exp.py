@@ -12,9 +12,9 @@ api_key = os.getenv("GOOGLE_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
 if api_key:
     genai.configure(api_key=api_key)
 else:
-    st.error("\u26a0\ufe0f API key is missing! Please check your .env file.")
+    st.error("⚠️ API key is missing! Please check your .env file or Streamlit secrets.")
 
-# Cleaned and focused pre-trained FAQ answers
+# Predefined FAQs
 pre_trained_qa = {
     "how to save on groceries": "Buy in bulk, avoid daily random shopping, and plan meals around hostel cooking with friends.",
     "how much should i save monthly": "Save at least 20%, but even ₹500 counts. Small steps > No steps.",
@@ -74,7 +74,7 @@ Your job?
 - Suggest if it's too high, too low, or just right.
 - Give sarcastic, practical, and hostel-life hacks.
 
-{user_input}
+Extra info from user: {user_input}
 
 Respond ONLY in this format:
 🏠 Rent: ...
@@ -104,7 +104,7 @@ Keep it short, real, and funny.
     except Exception as e:
         return f"⚠️ Error refining answer: {e}"
 
-# ── UI Starts ──
+# UI Section
 
 st.title("💰 AI Expense Advisor (India Edition)")
 st.write("Adjust income/expenses to get brutally honest budget advice. Built for hostel legends like you.")
