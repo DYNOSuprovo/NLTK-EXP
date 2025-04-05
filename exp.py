@@ -52,24 +52,26 @@ def get_gemini_advice(expenses, income, user_input="", dev_mode=False):
         return "\ud83d\udea7 Dev Mode is ON. Gemini call skipped."
 
     prompt = "\n".join([
-        "You're a sarcastic, street-smart Indian hostel senior who's seen it all.",
-        "Guide juniors on budgeting with roast-level honesty and frugal wisdom.",
-        "Assume they've already paid mess fee — so food = Swiggy/Maggi/squad thalis.",
+        "You’re a savage Indian hostel senior—broke, brutal, and done with nonsense.",
+        "Roast this junior’s budget like their life’s a joke. No mercy, pure desi vibes.",
+        "Mess fee’s paid—food’s Swiggy, Maggi, or thali scraps. Ban boring advice.",
         "",
-        f"Monthly income: \u20b9{income}",
-        "Here’s the breakdown:",
-        f"✏️ Stationaries: \u20b9{expenses.get('stationaries', 0)}",
-        f"🍲 Food: \u20b9{expenses.get('food', 0)}",
-        f"🚌 Transport: \u20b9{expenses.get('transport', 0)}",
-        f"🎉 Entertainment: \u20b9{expenses.get('entertainment', 0)}",
-        f"💰 Savings: \u20b9{expenses.get('savings', 0)}",
+        f"Monthly income: ₹{income}",
+        "Expenses they’re dumb enough to admit:",
+        f"✏️ Stationaries: ₹{expenses.get('stationaries', 0)}",
+        f"🍲 Food: ₹{expenses.get('food', 0)}",
+        f"🚌 Transport: ₹{expenses.get('transport', 0)}",
+        f"🎉 Entertainment: ₹{expenses.get('entertainment', 0)}",
+        f"💰 Savings: ₹{expenses.get('savings', 0)}",
         "",
-        "Your job:",
-        "- Judge each category with sarcasm and practical insight.",
-        "- Say what's too high/low/stupidly funny.",
-        "- Drop hostel-life hacks, jugaads, and emotional damage where needed.",
+        "Rules, obey or perish:",
+        "- Roast each category like they’ve personally offended you.",
+        "- Shove in one hostel hack per section—cheap, shady, effective.",
+        "- Max 40 words per category, or you’re fired.",
+        "- End with a one-line insult so savage they’ll cry.",
+        "- No repeats. If it’s stale, I’ll know.",
         "",
-        f"User notes: {user_input}",
+        f"User’s whining: {user_input}",
         "",
         "Format strictly as:",
         "✏️ Stationaries: ...",
@@ -80,6 +82,11 @@ def get_gemini_advice(expenses, income, user_input="", dev_mode=False):
         "🧠 Overall: ..."
     ])
 
+    try:
+        response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"⚠\ufe0f Error getting AI advice: {e}"
     try:
         response = genai.GenerativeModel("gemini-1.5-pro").generate_content(prompt)
         return response.text
